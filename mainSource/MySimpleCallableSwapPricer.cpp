@@ -743,6 +743,123 @@ void main
 				}
 			}
 			
+			int fundingleg_cf_starti = 0;
+
+			while (today >= fundingleg_paydate[fundingleg_cf_starti])
+			{
+				fundingleg_cf_starti = fundingleg_cf_starti + 1;
+
+				if(fundingleg_cf_starti >= num_fundingleg_cf - 1)
+				{
+					break;
+				}
+			}
+			
+			for (i = fundingleg_cf_starti; i < num_fundingleg_cf; i++)
+			{
+				if (today <= fixing_date[i])
+				{
+					break;
+				}
+				
+			}
+
+			int fundinglegnonfixed_cf_starti = i;
+
+			double ondf = 1.0, 
+			settlement_date_df = exp(-zc(settlement_date)*cvg(today, settlement_date, dcb));
+
+			if(fundinglegnonfixed_cf_starti < num_fundingleg_cf)
+			{
+				if(today == fixing_date[i]
+				&& fixinghistory_rate[i] > MinFixingRate)
+				{
+					fundinglegnonfixed_cf_starti = fundinglegnonfixed_cf_starti + 1;
+					CDate ondate;
+					CInstrument temp(crcy, "DEPO");
+
+					ShiftBusDate
+					(today
+					, temp.get_holiday()
+					, temp.get_numholiday()
+					, 1
+					, ondate);
+					
+					ondf = exp(-zc(ondate)*cvg(today, ondate, dcb));
+
+				}
+			}
+
+			settlement_date_df = settlement_date_df / ondf;
+
+			int num_remained_fundingleg_cf = num_fundingleg_cf - fundinglegnonfixed_cf_starti;
+
+			vector<double> _fundingleg_notional(num_remained_fundingleg_cf)
+			, _fundingleg_mult(num_remained_fundingleg_cf)
+			, _fundingleg_spread(num_remained_fundingleg_cf)
+			, fundinglegcalcstartT(num_remained_fundingleg_cf)
+			, fundinglegtau(num_remained_fundingleg_cf)
+			, fundinglegT(num_remained_fundingleg_cf);
+
+			vector<CDate> _fundingleg_calc_startdate(num_remained_fundingleg_cf)
+			, _fundingleg_paydate(num_remained_fundingleg_cf);
+
+			CDate fundingleg_calc_startdate0 = fundingleg_calc_startdate[num_fundingleg_cf - 1];
+
+			if(fundinglegnonfixed_cf_starti < num_remained_fundingleg_cf)
+			{
+				fundingleg_calc_startdate0 = fundingleg_calc_startdate[fundinglegnonfixed_cf_starti];
+			}
+
+			double fundinglegcalcstartT0 = cvg(today, fundingleg_calc_startdate0, dcb);
+
+			for (i=0; i<num_remained_fundingleg_cf; i++)
+			{
+				_fundingleg_notional[i] = fundingleg_notional[i+fundinglegnonfixed_cf_starti];
+				_fundingleg_spread[i] = fundingleg_spread[i+fundinglegnonfixed_cf_starti];
+
+				_fundingleg_calc_startdate[i] = fundingleg_calc_startdate[i+fundinglegnonfixed_cf_starti];
+
+				_fundingleg_paydate[i] = fundingleg_paydate[i+fundinglegnonfixed_cf_starti];
+
+				_fundingleg_mult[i] = fundingleg_mult[i+fundinglegnonfixed_cf_starti];
+
+				fundinglegtau[i] = cvg(fundingleg_calc_startdate[i+fundinglegnonfixed_cf_starti]
+									, fundingleg_calc_enddate[i+fundinglegnonfixed_cf_starti]
+									, fundingleg_dcb);
+				
+				fundinglegcalcstartT[i] = cvg(today
+											, fundingleg_calc_startdate[i+fundinglegnonfixed_cf_starti]
+											, dcb);
+				
+				fundinglegT[i] = cvg(today
+									, fundingleg_paydate[i+fundinglegnonfixed_cf_starti]
+									, dcb);
+				
+				int num_remained_couponleg_cf = num_couponleg_cf - couponleg_cf_starti
+				, couponindexfixinghistory_starti = 0
+				, couponleg_nonfixedcf_starti = couponleg_cf_starti;
+
+				vector<vector<vector<CDate>>> targetswaptionswap_date(num_remained_couponleg_cf);
+
+				vector<double> _couponleg_notional(num_remained_couponleg_cf)
+				, _couponleg_couponrate(num_remained_couponleg_cf)
+				, _couponleg_spread(num_remained_couponleg_cf)
+				, _couponlegindex1_mult(num_remained_couponleg_cf)
+				, couponlegtau(num_remained_couponleg_cf)
+				, couponlegT(num_remained_couponleg_cf);
+
+				
+
+			}
+
+
+			
+
+
+
+
+
 
 		}
 
