@@ -849,9 +849,398 @@ void main
 				, couponlegtau(num_remained_couponleg_cf)
 				, couponlegT(num_remained_couponleg_cf);
 
-				
+				vector<CDate> _couponleg_calc_startdate(num_remained_couponleg_cf)
+				, _couponleg_paydate(num_remained_couponleg_cf);
+
+				int max_nweek = 4
+				, max_nmonth = 11
+				, max_nquater = 100
+				, max_nday = 10000;
+
+				for (i=0; i<num_remained_couponleg_cf; i++)
+				{
+					_couponleg_notional[i] = couponleg_notional[i+couponleg_cf_starti];
+					_couponleg_couponrate[i] = couponleg_couponrate[i+couponleg_cf_starti];
+					_couponleg_spread[i] = couponleg_spread[i+couponleg_cf_starti];
+					_couponleg_calc_startdate[i] = couponleg_calc_startdate[i+couponleg_cf_starti];
+					_couponleg_paydate[i] = couponleg_paydate[i+couponleg_cf_starti];
+
+					couponlegtau[i] = cvg(couponleg_calc_startdate[i+couponleg_cf_starti]
+										, couponleg_calc_enddate[i+couponleg_cf_starti]
+										, couponleg_dcb);
+
+					couponlegT[i] = cvg(today
+										, couponleg_paydate[i+couponleg_cf_starti]
+										, dcb);
+
+					
+				}
+
+				imsi_sig = vector<double>(num_parameter);
+
+				imsi_sig[0] = sig[0];
+
+				for (i = 0; i< num_parameter-1; i++)
+				{
+					imsi_sig[i+1] = sig[i];
+				}
+
+				double floatinglegprice
+				, fixedlegprice
+				, atmswaprate
+				, swapprice;
+
+				MyPlainSwapPrice(crcy
+				, today
+				, settlement_date
+				, notional
+				, zc
+				, couponleg_calc_startdate
+				, couponleg_calc_enddate
+				, couponleg_paydate
+				, couponleg_dcb
+				, couponleg_notional
+				, couponleg_couponrate
+				, fundingleg_calc_startdate
+				, fundingleg_calc_enddate
+				, fundingleg_paydate
+				, fundingleg_dcb
+				, fundingleg_notional
+				, fundingleg_mult
+				, fundingleg_spread
+				, fixing_date
+				, fixingindex_maturity
+				, fixingindex_dcb
+				, fixinghistory_date
+				, fixinghistory_rate
+				, false
+				, floatinglegprice
+				, fixedlegprice
+				, atmswaprate
+				, swapprice);
+
+				// swap end
+
+				// bermudan option start
+
+				double tmpv = 0.0;
+
+				if (num_calldate > 0)
+				{
+					double maxT
+					, tmpdt
+					, tmpAt
+					, tmpBt
+					, lambda1 = 0.5
+					, lambda2 = 0.5;
+
+					int Nx, maxNx, ii;
+
+					string cont_dcb = "ACT/365";
+
+					vector<double> couponleg_payt(num_couponleg_cf)
+					, fundingleg_payt(num_fundingleg_cf)
+					, callnotice_t(num_calldate)
+					, parameter_t(num_parameter);
+
+					for (i = 0; i < num_couponleg_cf; i++)
+					{
+						couponleg_payt[i] = cvg(today, couponleg_paydate[i], cont_dcb);
+					}
+
+					for (i = 0; i < num_fundingleg_cf; i++)
+					{
+						fundingleg_payt[i] = cvg(today, fundingleg_paydate[i], cont_dcb);
+					}
+
+					for (i = 0; i < num_parameter; i++)
+					{
+						parameter_t[i] = cvg(today, parameter_date[i], cont_dcb);
+					}
+
+					maxT = max(max(couponleg_payt[num_couponleg_cf-1]
+									, fundingleg_payt[num_fundingleg_cf-1])
+								, callnotice_t[num_calldate-1]);
+
+					double stdr = quantile*sqrt(0.5*sig[num_parameter-1]*sig[num_parameter-1]/a[num_parameter-1]
+												* (1.0-exp(-2.0*a[num_parameter-1]*maxT)));
+
+					for (i = num_parameter - 1; i > 0; i--)
+					{
+						stdr = max(stdr, quantile*sqrt(0.5*sig[i-1]*sig[i-1]/a[i-1]
+										*(1.0-exp(-2.0*a[i-1]*parameter_t[i])))
+									);
+					}
+
+					Nx = int(ceil(stdr/dx));
+					maxNx = 2 * Nx;
+
+					vector<double> x(maxNx+1);
+
+					for(i=1; i<=Nx; i++)
+					{
+						x[Nx+i] = i*dx;
+						x[Nx-i] = -i*dx;
+					}
+
+					x[Nx] = 0.0;
+
+					int callstarti = num_calldate;
+
+					for(i=0; i<num_calldate; i++)
+					{
+						if(callnotice_t[i] > 0.0
+						&& callability_flag[i])
+						{
+							callstarti = i;
+							break;
+						}
+
+					}
+
+					int callendi = -1;
+
+					for(i=num_calldate-1; i>=callstarti; i--)
+					{
+						if(callability_flag[i])
+						{
+							callendi = i;
+							break;
+						}
+					}
+
+					int tempi;
+
+					vector<double> dt, Vts, Uts, PMt;
+
+					vector<int> Nt, aftercall_fund_starti, aftercall_coupon_starti;
+
+					vector<vector<double>> phi, t;
+
+					vector<vector<double>> tT, V_tT, PM_tT, xcoef_tT;
+
+					vector<double> Vnew(maxNx+1), VV(maxNx+1);
+
+					for ( i = callstarti; i <= callendi; i++ )
+					{
+						if (i == callstarti)
+						{
+							Nt.push_back(2*(int(ceil(callnotice_t[i]/(2.0*dT)))));
+							dt.push_back(callnotice_t[i]/double(Nt[i-callstarti]));
+						}
+						else
+						{
+							Nt.push_back(2*(int(ceil((callnotice_t[i]-callnotice_t[i-1])/(2.0*dT)))));
+							dt.push_back((callnotice_t[i]-callnotice_t[i-1])/double(Nt[i-callstarti]));
+						}
+
+						phi.push_back(vector<double>(Nt[i-callstarti]));
+						t.push_back(vector<double>(Nt[i-callstarti]));
+
+						for (tempi = 0; tempi < num_remained_fundingleg_cf; tempi++)
+						{
+							if (callnotice_date[i] <= _fundingleg_calc_startdate[tempi])
+							{
+								aftercall_fund_starti.push_back(tempi);
+								break;
+							}
+						}
+
+						for (tempi = 0; tempi < num_remained_couponleg_cf; tempi++)
+						{
+							if (callnotice_date[i] <= couponleg_calc_startdate[tempi])
+							{
+								aftercall_coupon_starti.push_back(tempi);
+								break;
+							}
+							
+						}
+					}
+
+					vector<vector<double>> Vold(callendi-callstarti+1)
+					, Vcoup(callendi-callstarti+1)
+					, Vfund(callendi-callstarti+1);
+
+					for (k = 0; k <= callendi - callstarti; k++)
+					{
+						cout << k << endl;
+
+						int tmpfundingleg_cf_starti = 0;
+
+						while (callnotice_date[k+callstarti] >= _fundingleg_paydate[tmpfundingleg_cf_starti])
+						{
+							tmpfundingleg_cf_starti = tmpfundingleg_cf_starti + 1;
+
+							if (tmpfundingleg_cf_starti >= num_fundingleg_cf-1)
+							{
+								break;
+							}
+						}
+
+						CDate tmpfundingleg_calc_startdate0 = _fundingleg_calc_startdate[aftercall_fund_starti[k]];
+
+						double tmpfundinglegcalcstartdateT0 = cvg(today
+																, tmpfundingleg_calc_startdate0
+																, dcb);
+						
+						PMt.push_back(exp(-zct(callnotice_t[k+callstarti])*callnotice_t[k+callstarti]));
+
+						Vts.push_back	(
+										0.5
+										* pow(	sig[k+callstarti]
+												* 	(	1.0
+														- exp(	-a[k+callstarti]
+																* callnotice_t[k+callstarti]
+															)
+													)
+												/ a[k+callstarti]
+												,2.0
+											)
+										);
+
+						Uts.push_back
+						(	0.25
+							* pow
+								(
+									sig[k+callstarti]
+									,2.0
+								)
+							* 	(
+									1.0
+									- exp
+										(
+											-2.0
+											* a[k+callstarti]
+											* callnotice_t[k+callstarti]
+										)
+
+								)
+							/ a[k+callstarti]
+						);
+
+						vector<CDate> tmpmtrty;
+
+						vector<double> tmpdf, tmpzero;
+
+						zerocurve
+						(
+							crcy
+							, callnotice_date[k+callstarti]
+							, tenor
+							, type
+							, fixedrateleg_freq
+							, floatingrateleg_freq
+							, mkt_rate
+							, tmpmtrty
+							, tmpdf
+							, tmpzero
+						);
+
+						vector<double>
+							tmpmtrty_t(int(tmpmtrty.size()))
+							, tmpmtrty_tT(int(tmpmtrty.size()))
+							, tmpVtT(int(tmpmtrty.size()))
+							, tmpPMtT(int(tmpmtrty.size()))
+							, tmpxcoef(int(tmpmtrty.size()));
+
+						for (i = 0; i < int(tmpmtrty.size()); i++)
+						{
+							tmpmtrty_t[i] = cvg(today, tmpmtrty[i], dcb);
+							tmpmtrty_tT[i] = tmpmtrty_t[i] - callnotice_t[k+callstarti];
+							tmpPMtT[i] = exp(-zct(tmpmtrty_t[i])*tmpmtrty_t[i])/PMt[k]; 
+							tmpxcoef[i] = - (
+											1.0
+											- exp
+												(
+													-a[k+callstarti]
+													* tmpmtrty_tT[i]
+												)
+											)
+											/ a[k+callstarti]; // B(t,T)
+							tmpVtT[i] = pow(tmpxcoef[i],2.0); 
+						}
+						
+						tT.push_back(tmpmtrty_tT);
+						V_tT.push_back(tmpVtT);
+						PM_tT.push_back(tmpPMtT);
+						xcoef_tT.push_back(tmpxcoef);
+
+						CDate ondate; 
+						CInstrument tempinst(crcy, "DEPO");
+						ShiftBusDate(callnotice_date[k+callstarti], tempinst.get_holiday(), tempinst.get_numholiday(), 1, ondate);
+						double ont = cvg(callnotice_date[k+callstarti], ondate, dcb);
+
+						for (i = 0; i <=maxNx; i++)
+						{
+							for (l = 0; l < num_mktrate; l++)
+							{
+								tmpzero[l] = -	(
+												log(PM_tT[k][l])
+												- V_tT[k][l]
+												* Uts[k]
+												- xcoef_tT[k][l]
+												* 	(
+													-Vts[k]
+													-x[i]
+													)
+												)
+												/ tT[k][l]; 
+							}
+
+							CInterpolation tmpzct(tT[k], tmpzero);
+							CInterpolation tmpzc(tmpmtrty, tmpzero);
+							double tmpondf = exp(-tmpzct(ont)*ont);
+
+							PlainSwapFundinglegNonFixedPricexy
+							(
+								callnotice_date[k+callstarti]
+								, callnotice_t[k+callstarti]
+								, tmpondf
+								, tmpzc
+								, aftercall_fund_starti[k]
+								, num_remained_fundingleg_cf
+								, _fundingleg_notional
+								, _fundingleg_mult
+								, _fundingleg_spread
+								, tmpfundingleg_calc_startdate0
+								, tmpfundinglegcalcstartdateT0
+								, _fundingleg_paydate
+								, fundinglegtau
+								, fundinglegT
+								, Vfund[k][i]
+							);
+
+							NonFixedPricexy
+							(
+								
+							)
+							
+						}
+						
+
+
+
+						
+					}
+					
+
+
+					
+
+					
+
+
+
+
+
+					
+				}
+
+
 
 			}
+
+
 
 
 			
