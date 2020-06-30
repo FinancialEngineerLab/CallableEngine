@@ -13,7 +13,7 @@
 #include "Instrument.h"
 #include "PlainPricer.h"
 
-
+// void main
 void main
 (
 	int argc,
@@ -28,7 +28,7 @@ void main
 		k,
 		l;
 
-	char* label = new char[100];
+	char *label = new char[100];
 
 	ifstream fin;
 	fin.open(argv[1]);
@@ -306,7 +306,7 @@ void main
 		, callability_flag;
 
 	vector<int>
-		couponlegindex1_tenors
+		couponlegindx1_tenors
 		, couponlegindex1fixed_frqs
 		, rahigh_bdryoh_flag
 		, ralow_bdryoh_flag
@@ -1242,7 +1242,8 @@ void main
 						
 			for (l = Nt[k]-1; l >= 0; l--)
 			{
-				t[k][l] = callnotice_t[k+callstarti]-(Nt[k]-l)*dt[k];
+				t[k][l] = callnotice_t[k+callstarti] - dt[k]*(Nt[k] - l);
+
 				phi[k][l] = (
 								pow
 								(
@@ -1314,6 +1315,49 @@ void main
 		}
 		tmpv = VV[Nx];
 	}
+	// Bermudan Option End
+
+	ofstream  fout(argv[2]);
+
+	vector<double> value(6, 0.0);
+
+	value[0] = floatinglegprice;
+
+	value[1] = -fixedlegprice;
+
+	value[2] = swapprice;
+
+	value[3] = tmpv;
+
+	value[4] = value[2] + value[3];
+
+	value[5] =	- value[1]
+				- value[3]
+				+ _couponleg_notional[num_remained_couponleg_cf - 1]
+				/ ondf
+				/ settlement_date_df
+				* exp(-zc(maturity) * cvg(today, maturity, dcb));
+
+	fout << "Price_" << endl;
+	fout << setprecision(15) << value[0] << endl;
+
+	fout << "Price_" << endl;
+	fout << setprecision(15) << value[1] << endl;
+
+	fout << "Price_" << endl;
+	fout << setprecision(15) << value[2] << endl;
+	
+	fout << "Price_" << endl;
+	fout << setprecision(15) << value[3] << endl;
+
+	fout << "Price_" << endl;	
+	fout << setprecision(15) << value[4] << endl;
+
+	fout << "Price_Note" << endl;
+	fout << setprecision(15) << value[5] << endl;
+
+	delete[]label;
+
 }
 
 
