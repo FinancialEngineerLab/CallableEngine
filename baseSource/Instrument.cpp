@@ -366,11 +366,6 @@ int CInstrument::get_futday()
 	return futday;
 }
 
-int CInstrument::get_futday()
-{
-	return futday;
-}
-
 int CInstrument::get_bondquotedigit()
 {
 	return bondquotedigit;

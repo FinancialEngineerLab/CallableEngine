@@ -772,6 +772,7 @@ void ShiftBusDate
 	if (sgn!=0)
 	{
 		int i;
+
 		for (i=0;i<abs(numshift);i++)
 		{
 			newdate = DateAdd('d', sgn, newdate);
@@ -1528,7 +1529,20 @@ void fixedlegcashflowschedule
 	int m = ymd[0] * Nummonthayear + ymd[1];
 	CDate maturitydate = DateAdd('m', m, startdate);
 
-	fixedlegcashflowschedule(startdate, maturitydate, holidays, numholiday, stub, direction, conv, freq, adjflag, num_schedule,schedule);
+	fixedlegcashflowschedule
+	(
+		startdate
+		, maturitydate
+		, holidays
+		, numholiday
+		, stub
+		, direction
+		, conv
+		, freq
+		, adjflag
+		, num_schedule
+		, schedule
+	);
 };
 
 void findmaturity

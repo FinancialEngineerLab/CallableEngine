@@ -103,8 +103,34 @@ void zerocurve
 		if (type[i] == "DEPO")
 		{
 			amt[i] = vector<double>(1);
-			depositeschedule(today, tenor[i], depoholiday, numdepoholiday, depostub, depodirection, depoconv, depoadjflag,depopayin, depospotlag, calstartdate[i], calenddate[i], paydate[i]);
-			depositeamount(notional, calstartdate[i], paydate[i], mktrate[i], depobasis, amt[i][0]);
+
+			depositeschedule
+			(
+				today
+				, tenor[i]
+				, depoholiday
+				, numdepoholiday
+				, depostub
+				, depodirection
+				, depoconv
+				, depoadjflag
+				, depopayin
+				, depospotlag
+				, calstartdate[i]
+				, calenddate[i]
+				, paydate[i]
+			);
+			
+			depositeamount
+			(
+				notional
+				, calstartdate[i]
+				, paydate[i]
+				, mktrate[i]
+				, depobasis
+				, amt[i][0]
+			);
+			
 			df.push_back(spotdf*notional / amt[i][0]);
 			zero.push_back(-log(df[i]) / cvg(today, paydate[i], "ACT/365"));
 			if (calstartdate[i] < spotdate)
@@ -183,8 +209,8 @@ void zerocurve
 				num_fixedrateleg_schedule,
 				num_fixedrateleg_freq = Nummonthayear / int(YMD2I(fixedrateleg_freq[i])[1]);
 			
-			double tmpaccamt = 0.0,
-			tmprmdamt;
+			double tmpaccamt = 0.0
+				, tmprmdamt = 0.0;
 			
 			vector<vector<CDate>> fixedrateleg_schedule(3);
 			
@@ -197,7 +223,20 @@ void zerocurve
 				fixedrateleg_schedule[j] = vector<CDate>(num_fixedrateleg_schedule);
 			}
 
-			fixedlegcashflowschedule(calstartdate[i],tenor[i],swapholiday, numswapholiday, swapstub, swapdirection, swapconv, fixedrateleg_freq[i], swapadjflag, num_fixedrateleg_schedule, fixedrateleg_schedule);
+			fixedlegcashflowschedule
+			(
+				calstartdate[i]
+				, tenor[i]
+				, swapholiday
+				, numswapholiday
+				, swapstub
+				, swapdirection
+				, swapconv
+				, fixedrateleg_freq[i]
+				, swapadjflag
+				, num_fixedrateleg_schedule
+				, fixedrateleg_schedule
+			);
 
 			maturity.push_back(fixedrateleg_schedule[0][num_fixedrateleg_schedule - 1]);
 
@@ -1581,7 +1620,7 @@ void basiszero
 
 		if (fixingend[i][add_num_cf[i]-1]>tenor[i])
 		{
-			fixingend[i][add_num_cf[i] - 1] = cvg(tenor[i], fixingend[i][add_num_cf[i] - 1], dcb);
+			fixingend_tenor[i][add_num_cf[i] - 1] = cvg(tenor[i], fixingend[i][add_num_cf[i] - 1], dcb);
 
 			if (i<num_mktspread-1)
 			{
@@ -1696,7 +1735,7 @@ void findbasiszeromnewt
 
 	const int ntrial,
 
-	vector<double> &x,
+	vector<double>& x,
 
 	const double tolx,
 	const double tolf
@@ -1711,12 +1750,12 @@ void findbasiszeromnewt
 	vector<double> p(n), fvec(n);
 	vector<vector<double>> fjac(n);
 
-	for (i=0; i<n; i++)
+	for (i = 0; i < n; i++)
 	{
 		fjac[i] = vector<double>(n);
 	}
 
-	for (k=0; k<ntrial; k++)
+	for (k = 0; k < ntrial; k++)
 	{
 		basiszero
 		(
@@ -1739,7 +1778,7 @@ void findbasiszeromnewt
 
 		errf = 0.0;
 
-		for (i=0; i<n; i++)
+		for (i = 0; i < n; i++)
 		{
 			errf += fabs(fvec[i]);
 		}
@@ -1749,7 +1788,7 @@ void findbasiszeromnewt
 			return;
 		}
 
-		for (i=0; i<n; i++)
+		for (i = 0; i < n; i++)
 		{
 			p[i] = -fvec[i];
 		}
@@ -1759,7 +1798,7 @@ void findbasiszeromnewt
 
 		errx = 0.0;
 
-		for (i=0; i<n; i++)
+		for (i = 0; i < n; i++)
 		{
 			errx += fabs(p[i]);
 			x[i] += p[i];
@@ -2115,7 +2154,8 @@ void cszerocurve
 		}
 		else if (type[i] == "FX")
 		{
-			amt[i][0];
+			amt[i] = vector<double>(1);
+
 			fxswapschedule
 			(
 				today,

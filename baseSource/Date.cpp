@@ -232,14 +232,16 @@ double cvg(CDate t_st, CDate t_end, string dcb)
 	else if(dcb == "ACT/ACTKRW")
 	{
 		int y1 = t_st.get_year(), y2 = t_end.get_year();
-		double den;
+		double den = 0.0;
 
 		if (y1==y2)
 		{
-			
+			den = (is_leapyear(y1) ? 366.0 : 365.0);
 		}
 		else
 		{
+			CDate date1(y1, 2, 28), date2(y2, 2, 28);
+			den = ((is_leapyear(y1) && t_st <= date1) || (is_leapyear(y2) && t_end >= date2) ? 366.0 : 365.0);
 		}
 		ans = (t_end - t_st) / den;
 
@@ -341,7 +343,7 @@ vector<int> totaldays2YYYYMMDD(int totaldays)
 
 	int tempdays = totaldays, YYYY = 1, MM = 1, DD, leapflag = is_leapyear(YYYY);
 
-	for (;tempdays<365+leapflag;)
+	for ( ; tempdays > 365 + leapflag; )
 	{
 		tempdays = tempdays - 365 - leapflag;
 		YYYY = YYYY + 1;
@@ -356,9 +358,10 @@ vector<int> totaldays2YYYYMMDD(int totaldays)
 		mdays[1] = mdays[1] + 1;
 	}
 
-	for (;tempdays>mdays[MM-1];)
+	for (;tempdays > mdays[MM-1];)
 	{
 		tempdays = tempdays - mdays[MM - 1];
+		MM = MM + 1;
 	}
 
 	YYYYMMDD[1] = MM;
@@ -413,13 +416,15 @@ CDate DateAdd(char ymd, int numymd, CDate date)
 			newdate.set_day(d);
 		}
 
-		newdate = CDate(date[0], date[1], date[2]);
+		newdate = CDate(newdate[0], newdate[1], newdate[2]);
 
 
 	}
 	else
 	{
 		newdate = CDate(get_totaldays(date[0], date[1], date[2]) + numymd);
+		//newdate = get_totaldays(date[0], date[1], date[2]);
+
 	}
 
 	return newdate;

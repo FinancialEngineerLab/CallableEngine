@@ -1653,7 +1653,8 @@ void MyPlainZeroCouponCompoundSwapPrice
             );
 }
 
-void PlainSwapPrice(CCurrency crcy, CDate today, CDate settlement_date, double notional, CInterpolation zc, vector<CDate> couponleg_calc_startdate, vector<CDate> couponleg_calc_enddate, vector<CDate> couponleg_paydate, string couponleg_dcb, double couponleg_couponrate, vector<CDate> fundingleg_calc_startdate, vector<CDate> fundingleg_calc_enddate, vector<CDate> fundingleg_paydate, string fundingleg_dcb, vector<CDate> fixing_date, vector<CDate> fixingindex_maturity, string fixingindex_dcb, double fixinghistory_rate, bool estflag, double& floatinglegprice, double& fixedlegprice, double& atmswaprate, double& swapprice)
+void PlainSwapPrice(
+    CCurrency crcy, CDate today, CDate settlement_date, double notional, CInterpolation zc, vector<CDate> couponleg_calc_startdate, vector<CDate> couponleg_calc_enddate, vector<CDate> couponleg_paydate, string couponleg_dcb, double couponleg_couponrate, vector<CDate> fundingleg_calc_startdate, vector<CDate> fundingleg_calc_enddate, vector<CDate> fundingleg_paydate, string fundingleg_dcb, vector<CDate> fixing_date, vector<CDate> fixingindex_maturity, string fixingindex_dcb, double fixinghistory_rate, bool estflag, double& floatinglegprice, double& fixedlegprice, double& atmswaprate, double& swapprice)
 {
     //  ofstream fout("test.txt");
     string dcb = "ACT/365";
@@ -5487,65 +5488,6 @@ void QuantoLeveragedAverageFixedAccrualZeroPrice
                 )
                 * fixedrateincount
                 / num_fixed[i]
-                )
-            * couponleg_notional[i];
-    }
-}
-
-
-void QLevAveFixedAccZeroPrice_XXX
-(
-    CDate today
-    , double ondf
-    , double settlement_date_df
-    , CInterpolation zc
-    , int num_fixed_couponleg_cf
-    , vector<int> num_fixed
-    , vector<vector<double>> fixedrate1
-    , vector<vector<double>> fixedrate2
-    , vector<vector<double>> rngchkfixedrate
-    , vector<double> couponleg_couponrate
-    , vector<bool> ra_flag
-    , vector<double> couponleg_notional
-    , vector<double> couponleg_spread
-    , vector<double> couponlegindex1_mult
-    , vector<double> couponlegindex2_mult
-    , vector<double> caprates
-    , vector<double> floorrates
-    , vector<double> rahigh_bdry
-    , vector<bool> rahigh_bdryin_flag
-    , vector<double> ralow_bdry
-    , vector<bool> ralow_bdryin_flag
-    , double& fixedlegfixedprice
-)
-{
-    int i;
-
-    double dummy0 = 0.0;
-    double dummy1 = 0.0;
-
-    for (i = 0; i < num_fixed_couponleg_cf; i++)
-    {
-
-        dummy0 = accumulate(fixedrate1[i].begin(), fixedrate1[i].end(), 0.0);
-        dummy1 = dummy0 / fixedrate1[i].size();
-
-        fixedlegfixedprice
-            = fixedlegfixedprice
-            + (
-                couponleg_couponrate[i]
-                + min
-                (
-                    max
-                    (
-                        // accumulate(fixedrate1[i].begin(), fixedrate1[i].end(), 0.0) / fixedrate1[i].size() ---> average Àû¿ë
-                        couponlegindex1_mult[i] * accumulate(fixedrate1[i].begin(), fixedrate1[i].end(), 0.0) / fixedrate1[i].size()
-                        + couponlegindex2_mult[i] * accumulate(fixedrate2[i].begin(), fixedrate2[i].end(), 0.0) / fixedrate2[i].size()
-                        + couponleg_spread[i]
-                        , floorrates[i]
-                    )
-                    , caprates[i]
-                )
                 )
             * couponleg_notional[i];
     }
