@@ -4024,7 +4024,24 @@ void CMSSpreadNonFixedAccrualPricexy(int startk, double ondf, CInterpolation zc,
 }
 
 //void PlainSwapFundinglegNonFixedPricexy(CDate today, double callnotice_t, double ondf, double settlement_date_df, CInterpolation zc, int couponleg_cf_starti, int num_remained_fundingleg_cf, vector<double> _fundingleg_notional, vector<double> _fundingleg_mult, vector<double> _fundingleg_spread, CDate fundingleg_calc_startdate0, double fundinglegcalcstartT0, vector<CDate> _fundingleg_paydate, vector<double> fundinglegtau, vector<double> fundinglegT, double &floatinglegnonfixedprice)
-void PlainSwapFundinglegNonFixedPricexy(CDate callnotice_date, double callnotice_t, double ondf, CInterpolation zc, int couponleg_cf_starti, int num_remained_fundingleg_cf, vector<double> _fundingleg_notional, vector<double> _fundingleg_mult, vector<double> _fundingleg_spread, CDate fundingleg_calc_startdate0, double fundinglegcalcstartT0, vector<CDate> _fundingleg_paydate, vector<double> fundinglegtau, vector<double> fundinglegT, double& floatinglegnonfixedprice)
+void PlainSwapFundinglegNonFixedPricexy
+(
+    CDate callnotice_date
+    , double callnotice_t
+    , double ondf
+    , CInterpolation zc
+    , int couponleg_cf_starti
+    , int num_remained_fundingleg_cf
+    , vector<double> _fundingleg_notional
+    , vector<double> _fundingleg_mult
+    , vector<double> _fundingleg_spread
+    , CDate fundingleg_calc_startdate0
+    , double fundinglegcalcstartT0
+    , vector<CDate> _fundingleg_paydate
+    , vector<double> fundinglegtau
+    , vector<double> fundinglegT
+    , double &floatinglegnonfixedprice
+)
 {
     int i;
     double imsi_0 = 0.0;
@@ -4147,7 +4164,20 @@ void CMSSpreadNonFixedAccrualPricexy(double callnotice_t, int startk, double ond
     fixedlegnonfixedprice = fixedlegnonfixedprice / ondf;
 }
 
-void NonFixedPricexy(double callnotice_t, int startk, double ondf, CInterpolation zc, int num_remained_couponleg_cf, vector<double> _couponleg_notional, vector<double> _couponleg_couponrate, vector<CDate> _couponleg_paydate, vector<double> couponlegtau, vector<double> couponlegT, double& fixedlegnonfixedprice)
+void NonFixedPricexy
+(
+    double callnotice_t
+    , int startk
+    , double ondf
+    , CInterpolation zc
+    , int num_remained_couponleg_cf
+    , vector<double> _couponleg_notional
+    , vector<double> _couponleg_couponrate
+    , vector<CDate> _couponleg_paydate
+    , vector<double> couponlegtau
+    , vector<double> couponlegT
+    , double& fixedlegnonfixedprice
+)
 {
     int i;
     fixedlegnonfixedprice = 0.0;

@@ -694,7 +694,7 @@ void findzerorate
 			interpolatedamt(notional, startzero, mid, coupon, interval, startdate, enddate, interdate, startindx, num_coup, ans);
 			ans = ans - amt;
 		}
-		else if (ans > 0.0)
+		else if (ans < 0.0)
 		{
 			right = mid;
 			mid = 0.5 * (left + right);
