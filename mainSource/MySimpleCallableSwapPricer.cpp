@@ -689,7 +689,7 @@ void main
 		, zero
 	);
 
-	vector<CDate> mtrty_t(int(mtrty.size()));
+	vector<double> mtrty_t(int(mtrty.size()));
 
 	for (i=0; i<int(mtrty.size()); i++)
 	{
@@ -945,10 +945,16 @@ void main
 			couponleg_payt[i] = cvg(today, couponleg_paydate[i], cont_dcb);
 		}
 
+		for (i = 0; i < num_calldate; i++)
+		{
+			callnotice_t[i] = cvg(today, callnotice_date[i], cont_dcb);
+		}
+
 		for (i = 0; i < num_fundingleg_cf; i++)
 		{
 			fundingleg_payt[i] = cvg(today, fundingleg_paydate[i], cont_dcb);
 		}
+
 
 		for (i = 0; i < num_parameter; i++)
 		{
@@ -986,7 +992,8 @@ void main
 
 		for(i=0; i<num_calldate; i++)
 		{
-			if(callnotice_t[i] > 0.0
+			if
+			(callnotice_t[i] > 0.0
 			&& callability_flag[i])
 			{
 				callstarti = i;
@@ -1073,10 +1080,14 @@ void main
 
 			CDate tmpfundingleg_calc_startdate0 = _fundingleg_calc_startdate[aftercall_fund_starti[k]];
 
-			double tmpfundinglegcalcstartdateT0 = cvg(today
-													, tmpfundingleg_calc_startdate0
-													, dcb);
-						
+			double tmpfundinglegcalcstartT0 = cvg(today
+												, tmpfundingleg_calc_startdate0
+												, dcb);
+
+			Vold[k] = vector<double>(maxNx + 1);
+			Vcoup[k] = vector<double>(maxNx + 1);
+			Vfund[k] = vector<double>(maxNx + 1);
+
 			PMt.push_back(exp(-zct(callnotice_t[k+callstarti])*callnotice_t[k+callstarti]));
 
 			Vts.push_back	(
@@ -1195,7 +1206,7 @@ void main
 					, _fundingleg_mult
 					, _fundingleg_spread
 					, tmpfundingleg_calc_startdate0
-					, tmpfundinglegcalcstartdateT0
+					, tmpfundinglegcalcstartT0
 					, _fundingleg_paydate
 					, fundinglegtau
 					, fundinglegT
