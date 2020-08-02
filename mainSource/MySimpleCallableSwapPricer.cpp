@@ -1349,19 +1349,19 @@ void main
 				/ settlement_date_df
 				* exp(-zc(maturity) * cvg(today, maturity, dcb));
 
-	fout << "Price_" << endl;
+	fout << "Price_floating" << endl;
 	fout << setprecision(15) << value[0] << endl;
 
-	fout << "Price_" << endl;
+	fout << "Price_fixed" << endl;
 	fout << setprecision(15) << value[1] << endl;
 
-	fout << "Price_" << endl;
+	fout << "Price_swap" << endl;
 	fout << setprecision(15) << value[2] << endl;
 	
-	fout << "Price_" << endl;
+	fout << "Price_Bermudan" << endl;
 	fout << setprecision(15) << value[3] << endl;
 
-	fout << "Price_" << endl;	
+	fout << "Price_Structured" << endl;	
 	fout << setprecision(15) << value[4] << endl;
 
 	fout << "Price_Note" << endl;
