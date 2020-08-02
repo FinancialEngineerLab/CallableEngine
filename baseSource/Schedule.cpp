@@ -689,7 +689,7 @@ void fixedlegcashflowschedule
 	{
 		tempdate = maturitydate;
 
-		while (tempdate < startdate)
+		while (tempdate > startdate)
 		{
 			i = i + 1;
 			tempdate = DateAdd('m', -(i - 1) * frq, maturitydate);
@@ -727,8 +727,8 @@ void fixedlegcashflowschedule
 			{
 				schedule[1][i] = DateAdd('m', (i -num_schedule) * frq, maturitydate);
 
-				ConvReflDate(schedule[1][i], holidays, numholiday, conv, schedule[0][i]);
-				schedule[2][i] = schedule[1][i + 1];
+				ConvReflDate(schedule[1][i], holidays, numholiday, conv, schedule[0][i-1]);
+				schedule[2][i-1] = schedule[1][i];
 			}
 		}
 		ConvReflDate(maturitydate, holidays, numholiday, conv, schedule[0][num_schedule - 1]);
@@ -974,7 +974,7 @@ int findnumschedule
 	{
 		tempdate = maturitydate;
 
-		while (tempdate < startdate)
+		while (tempdate > startdate)
 		{
 			i = i + 1;
 			tempdate = DateAdd('m', -(i - 1) * frq, maturitydate);
